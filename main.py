@@ -34,6 +34,19 @@ from collector.manual_importer import router as importer_router
 from bot.middlewares.logging_middleware import LoggingAndContextMiddleware
 from services.scheduler_service import setup_scheduler
 
+# 1. Render portni topishi uchun oddiy Flask server
+app = Flask(__name__)
+
+
+@app.route("/")
+def index():
+    return "ZeroToHero Analyzer Bot is running!"
+
+
+def run_flask():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
 
 async def main() -> None:
     """Initialize all subsystems and start bot polling."""
@@ -120,28 +133,12 @@ async def main() -> None:
 
 if __name__ == "__main__":
     try:
+        # 2. Flask serverni alohida oqimda (thread) ishga tushiramiz
+        flask_thread = threading.Thread(target=run_flask)
+        flask_thread.daemon = True
+        flask_thread.start()
+
+        # 3. Asosiy aiogram bot polling qismini ishga tushiramiz
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         print("\nBot to'xtatildi.")
-# 1. Render portni topishi uchun oddiy Flask server
-app = Flask(__name__)
-
-
-@app.route("/")
-def index():
-  return "ZeroToHero Analyzer Bot is running!"
-
-
-def run_flask():
-  port = int(os.environ.get("PORT", 10000))
-  app.run(host="0.0.0.0", port=port)
-
-
-if __name__ == "__main__":
-  # 2. Flask serverni alohida oqimda (thread) ishga tushiramiz
-  flask_thread = threading.Thread(target=run_flask)
-  flask_thread.daemon = True
-  flask_thread.start()
-
-  # 3. Bu yerda o'zingizning botingiz ishga tushadigan qism qoladi 
-  # (masalan: asyncio.run(main()) yoki bot.infinity_polling())
