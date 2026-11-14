@@ -7,6 +7,9 @@ import asyncio
 import logging
 import sys
 from pathlib import Path
+import os
+import threading
+from flask import Flask
 
 # Ensure UTF-8 output on Windows console
 if sys.platform == "win32":
@@ -120,3 +123,25 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         print("\nBot to'xtatildi.")
+# 1. Render portni topishi uchun oddiy Flask server
+app = Flask(__name__)
+
+
+@app.route("/")
+def index():
+  return "ZeroToHero Analyzer Bot is running!"
+
+
+def run_flask():
+  port = int(os.environ.get("PORT", 10000))
+  app.run(host="0.0.0.0", port=port)
+
+
+if __name__ == "__main__":
+  # 2. Flask serverni alohida oqimda (thread) ishga tushiramiz
+  flask_thread = threading.Thread(target=run_flask)
+  flask_thread.daemon = True
+  flask_thread.start()
+
+  # 3. Bu yerda o'zingizning botingiz ishga tushadigan qism qoladi 
+  # (masalan: asyncio.run(main()) yoki bot.infinity_polling())
