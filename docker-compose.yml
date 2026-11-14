@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  analyzer-bot:
+    build: .
+    container_name: zerotohero_analyzer
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./database:/app/database
+      - ./logs:/app/logs
+    environment:
+      - TZ=Asia/Tashkent
